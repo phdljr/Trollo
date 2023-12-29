@@ -7,6 +7,7 @@ import org.nbc.account.trollo.domain.board.entity.Board;
 import org.nbc.account.trollo.domain.board.exception.NotFoundBoardException;
 import org.nbc.account.trollo.domain.board.repository.BoardRepository;
 import org.nbc.account.trollo.domain.card.dto.request.CardCreateRequestDto;
+import org.nbc.account.trollo.domain.card.dto.request.CardUpdateRequestDto;
 import org.nbc.account.trollo.domain.card.dto.response.CardAllReadResponseDto;
 import org.nbc.account.trollo.domain.card.dto.response.CardReadResponseDto;
 import org.nbc.account.trollo.domain.card.entity.Card;
@@ -118,6 +119,27 @@ public class CardServiceImpl implements CardService {
 
         List<Card> cards = cardRepository.findAllBySectionId(sectionId);
         return CardMapper.INSTANCE.toCardAllReadResponseDtoList(cards);
+    }
+
+    @Override
+    @Transactional
+    public void updateCard(final Long cardId, final CardUpdateRequestDto cardUpdateRequestDto,
+        final User user) {
+        Card card = cardRepository.findById(cardId)
+            .orElseThrow(() -> new NotFoundCardException(ErrorCode.NOT_FOUND_CARD));
+
+        // 카드가 있는 보드에 사용자가 속하는지 확인한다.
+        Long boardId = card.getSection().getBoard().getId();
+        if (!userBoardRepository.existsByBoardIdAndUserId(boardId, user.getId())) {
+            throw new ForbiddenAccessCardException(ErrorCode.FORBIDDEN_ACCESS_CARD);
+        }
+
+        card.update(
+            cardUpdateRequestDto.title(),
+            cardUpdateRequestDto.content(),
+            cardUpdateRequestDto.color(),
+            cardUpdateRequestDto.deadline()
+        );
     }
 
 }

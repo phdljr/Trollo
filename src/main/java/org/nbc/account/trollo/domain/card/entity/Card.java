@@ -67,4 +67,11 @@ public class Card {
     public void setPrevCard(Card card) {
         this.prevCard = card;
     }
+
+    public void update(String title, String content, String color, LocalDateTime deadline) {
+        this.title = title;
+        this.content = content;
+        this.color = color;
+        this.deadline = deadline;
+    }
 }
