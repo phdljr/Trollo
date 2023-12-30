@@ -3,9 +3,11 @@ package org.nbc.account.trollo.domain.comment;
 import lombok.RequiredArgsConstructor;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentDeleteReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentSaveReq;
+import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
 import org.nbc.account.trollo.global.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,5 +31,12 @@ public class CommentController {
         commentService.deleteComment(req);
         return new ApiResponse<>(HttpStatus.OK.value(), "delete_comment");
     }
+
+    @PatchMapping
+    public ApiResponse<Void> updateComment(@RequestBody CommentUpdateReq req) {
+        commentService.updateComment(req);
+        return new ApiResponse<>(HttpStatus.OK.value(), "update_comment");
+    }
+
 
 }

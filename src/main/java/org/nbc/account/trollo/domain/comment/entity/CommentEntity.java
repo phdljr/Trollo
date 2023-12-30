@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
 import org.nbc.account.trollo.domain.user.entity.User;
 import org.nbc.account.trollo.global.entity.BaseEntity;
 
@@ -19,6 +20,7 @@ import org.nbc.account.trollo.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "TB_COMMENT")
 public class CommentEntity extends BaseEntity {
 
@@ -26,7 +28,6 @@ public class CommentEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
     private String content;
-
     @ManyToOne
     @JoinColumn(name = "id")
     private User user;
@@ -36,5 +37,6 @@ public class CommentEntity extends BaseEntity {
         this.content = content;
         this.user = user;
     }
+
 
 }

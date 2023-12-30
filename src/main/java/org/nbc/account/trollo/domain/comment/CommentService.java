@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentDeleteReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentSaveReq;
+import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
 import org.nbc.account.trollo.domain.comment.dto.res.CommentSaveRes;
 import org.nbc.account.trollo.domain.comment.dto.res.CommentUpdateRes;
 import org.nbc.account.trollo.domain.comment.entity.CommentEntity;
@@ -45,6 +46,24 @@ public class CommentService {
             throw new IllegalArgumentException("Not_Found_Entity");
         }
         commentRepository.delete(commentEntity);
+    }
+
+    @Transactional
+    public CommentUpdateRes updateComment(CommentUpdateReq req) {
+        CommentEntity commentEntity = commentRepository.findByCommentIdAndUserNickname(
+            req.commentId(),
+            req.nickname());
+        if (commentEntity == null) {
+            throw new IllegalArgumentException("Not_Found_Entity");
+        }
+        User nickname = findNickname(req.nickname());
+        return CommentServiceMapper.INSTANCE.toCommentUpdateRes(
+            commentRepository.save(CommentEntity.builder()
+                .commentId(req.commentId())
+                .content(req.content())
+                .user(nickname)
+                .build())
+        );
     }
 
     @Mapper
