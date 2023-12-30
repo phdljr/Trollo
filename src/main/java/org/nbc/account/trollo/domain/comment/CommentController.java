@@ -1,12 +1,16 @@
 package org.nbc.account.trollo.domain.comment;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentDeleteReq;
+import org.nbc.account.trollo.domain.comment.dto.req.CommentGetReqUser;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentSaveReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
+import org.nbc.account.trollo.domain.comment.dto.res.CommentGetResUser;
 import org.nbc.account.trollo.global.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,5 +42,9 @@ public class CommentController {
         return new ApiResponse<>(HttpStatus.OK.value(), "update_comment");
     }
 
+    @GetMapping
+    public ApiResponse<List<CommentGetResUser>> getComments(@RequestBody CommentGetReqUser req) {
+        return new ApiResponse<>(commentService.findUserComment(req));
+    }
 
 }
