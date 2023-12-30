@@ -1,11 +1,14 @@
 package org.nbc.account.trollo.domain.comment;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentDeleteReq;
+import org.nbc.account.trollo.domain.comment.dto.req.CommentGetReqUser;
+import org.nbc.account.trollo.domain.comment.dto.res.CommentGetResUser;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentSaveReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
 import org.nbc.account.trollo.domain.comment.dto.res.CommentSaveRes;
@@ -66,6 +69,11 @@ public class CommentService {
         );
     }
 
+    public List<CommentGetResUser> findUserComment(CommentGetReqUser req) {
+        return CommentServiceMapper.INSTANCE.toCommentGetResUserList(
+            commentRepository.findByUserNickname(req.nickname()));
+    }
+
     @Mapper
     public interface CommentServiceMapper {
 
@@ -76,6 +84,17 @@ public class CommentService {
         CommentSaveRes toCommentSaveRes(CommentEntity commentEntity);
 
         CommentUpdateRes toCommentUpdateRes(CommentEntity commentEntity);
+
+        @Mapping(source = "user.nickname", target = "nickname")
+        default String toUserNickname(User user) {
+            return user.getNickname();
+        }
+
+        List<CommentGetResUser> toCommentGetResUserList(List<CommentEntity> commentEntities);
+
+        @Mapping(source = "user", target = "nickname")
+        CommentGetResUser toCommentGetResUser(CommentEntity commentEntity);
+
     }
 
 }
