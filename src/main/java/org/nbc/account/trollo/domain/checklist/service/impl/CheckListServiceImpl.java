@@ -52,7 +52,7 @@ public class CheckListServiceImpl implements CheckListService {
 
     @Override
     @Transactional
-    public void updateCheckList(Long cardId, Long id, CheckListRequestDto requestDto,
+    public void updateCheckList(Long cardId, Long checkListId, CheckListRequestDto requestDto,
         UserDetailsImpl userDetails) {
         String description = requestDto.description();
         boolean checkSign = requestDto.checkSign();
@@ -60,7 +60,7 @@ public class CheckListServiceImpl implements CheckListService {
 
         Card card = cardRepository.findById(cardId)
             .orElseThrow(() -> new NotFoundCardException(ErrorCode.NOT_FOUND_CARD));
-        CheckList checkList = checkListRepository.findById(id)
+        CheckList checkList = checkListRepository.findById(checkListId)
             .orElseThrow(() -> new NotFoundCheckListException(ErrorCode.NOT_FOUND_CHECKLIST));
 
         Long boardId = card.getSection().getBoard().getId();

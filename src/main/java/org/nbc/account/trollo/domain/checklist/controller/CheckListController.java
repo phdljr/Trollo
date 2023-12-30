@@ -30,13 +30,13 @@ public class CheckListController {
         return new ApiResponse<>(HttpStatus.CREATED.value(), "체크리스트 생성");
     }
 
-    @PutMapping("/{cardId}/checklist/{id}")
+    @PutMapping("/{cardId}/checklist/{checkListId}")
     public ApiResponse<Void> updateCheckList(
         @PathVariable Long cardId,
-        @PathVariable Long id,
+        @PathVariable Long checkListId,
         @RequestBody CheckListRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkListService.updateCheckList(cardId,id,requestDto,userDetails);
+        checkListService.updateCheckList(cardId,checkListId,requestDto,userDetails);
         return new ApiResponse<>(HttpStatus.OK.value(), "체크리스트 수정");
     }
 }
