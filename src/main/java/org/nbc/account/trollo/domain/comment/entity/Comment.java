@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
+import org.nbc.account.trollo.domain.card.entity.Card;
 import org.nbc.account.trollo.domain.user.entity.User;
 import org.nbc.account.trollo.global.entity.BaseEntity;
 
@@ -22,7 +22,7 @@ import org.nbc.account.trollo.global.entity.BaseEntity;
 @Entity
 @Builder
 @Table(name = "TB_COMMENT")
-public class CommentEntity extends BaseEntity {
+public class Comment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,12 +31,7 @@ public class CommentEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "id")
     private User user;
-
-    @Builder
-    public CommentEntity(String content, User user) {
-        this.content = content;
-        this.user = user;
-    }
-
+    @ManyToOne
+    private Card card;
 
 }

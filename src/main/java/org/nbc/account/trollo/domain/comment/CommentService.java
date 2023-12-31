@@ -6,17 +6,23 @@ import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
+import org.nbc.account.trollo.domain.card.entity.Card;
+import org.nbc.account.trollo.domain.card.repository.CardRepository;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentDeleteReq;
-import org.nbc.account.trollo.domain.comment.dto.req.CommentGetReqUser;
-import org.nbc.account.trollo.domain.comment.dto.res.CommentGetResUser;
+import org.nbc.account.trollo.domain.comment.dto.req.CommentGetUserReq;
+import org.nbc.account.trollo.domain.comment.dto.res.CommentGetUserRes;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentSaveReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
 import org.nbc.account.trollo.domain.comment.dto.res.CommentSaveRes;
 import org.nbc.account.trollo.domain.comment.dto.res.CommentUpdateRes;
-import org.nbc.account.trollo.domain.comment.entity.CommentEntity;
-import org.nbc.account.trollo.domain.comment.entity.CommentRepository;
+import org.nbc.account.trollo.domain.comment.entity.Comment;
+import org.nbc.account.trollo.domain.comment.exception.CommentDomainException;
+import org.nbc.account.trollo.domain.comment.repository.CommentRepository;
 import org.nbc.account.trollo.domain.user.entity.User;
 import org.nbc.account.trollo.domain.user.repository.UserRepository;
+import org.nbc.account.trollo.domain.userboard.entity.UserBoard;
+import org.nbc.account.trollo.domain.userboard.repository.UserBoardRepository;
+import org.nbc.account.trollo.global.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,13 +31,34 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final CardRepository cardRepository;
+    private final UserBoardRepository userBoardRepository;
 
 
     public CommentSaveRes saveComment(CommentSaveReq req) {
-        User nickname = findNickname(req.nickname());
-        CommentEntity commentEntity = new CommentEntity(req.content(), nickname);
+        Long board = findBoard(req.cardId());
+        User user = userRepository.findUserById(req.userid());
+        Card card = cardRepository.findCardById(req.cardId());
+        UserBoard userBoard = findUserBoard(req.userid(), board);
+        if (userBoard == null) {
+            throw new CommentDomainException(ErrorCode.NOT_FOUND_BOARD);
+        }
         return CommentServiceMapper.INSTANCE.toCommentSaveRes(
-            commentRepository.save(commentEntity));
+            commentRepository.save(Comment.builder()
+                .content(req.content())
+                .user(user)
+                .card(card)
+                .build()));
+    }
+
+    public UserBoard findUserBoard(Long userid, Long boardid) {
+        return userBoardRepository.findUserBoardByBoardIdAndUserId(userid, boardid);
+    }
+
+    public Long findBoard(Long cardid) {
+        Card card = cardRepository.findBySection_Board_Id(cardid);
+        Long bard = card.getSection().getBoard().getId();
+        return bard;
     }
 
     private User findNickname(String nickname) {
@@ -44,24 +71,24 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(CommentDeleteReq req) {
-        CommentEntity commentEntity = commentRepository.findByCommentId(req.commentId());
-        if (commentEntity == null) {
-            throw new IllegalArgumentException("Not_Found_Entity");
+        Comment comment = commentRepository.findByCommentId(req.commentId());
+        if (comment == null) {
+            throw new CommentDomainException(ErrorCode.NOT_FOUND_COMMENT);
         }
-        commentRepository.delete(commentEntity);
+        commentRepository.delete(comment);
     }
 
     @Transactional
     public CommentUpdateRes updateComment(CommentUpdateReq req) {
-        CommentEntity commentEntity = commentRepository.findByCommentIdAndUserNickname(
+        Comment comment = commentRepository.findByCommentIdAndUserNickname(
             req.commentId(),
             req.nickname());
-        if (commentEntity == null) {
-            throw new IllegalArgumentException("Not_Found_Entity");
+        if (comment == null) {
+            throw new CommentDomainException(ErrorCode.NOT_FOUND_COMMENT);
         }
         User nickname = findNickname(req.nickname());
         return CommentServiceMapper.INSTANCE.toCommentUpdateRes(
-            commentRepository.save(CommentEntity.builder()
+            commentRepository.save(Comment.builder()
                 .commentId(req.commentId())
                 .content(req.content())
                 .user(nickname)
@@ -69,7 +96,7 @@ public class CommentService {
         );
     }
 
-    public List<CommentGetResUser> findUserComment(CommentGetReqUser req) {
+    public List<CommentGetUserRes> findUserComment(CommentGetUserReq req) {
         return CommentServiceMapper.INSTANCE.toCommentGetResUserList(
             commentRepository.findByUserNickname(req.nickname()));
     }
@@ -81,19 +108,19 @@ public class CommentService {
             CommentService.CommentServiceMapper.class);
 
         @Mapping(source = "user.nickname", target = "nickname")
-        CommentSaveRes toCommentSaveRes(CommentEntity commentEntity);
+        CommentSaveRes toCommentSaveRes(Comment comment);
 
-        CommentUpdateRes toCommentUpdateRes(CommentEntity commentEntity);
+        CommentUpdateRes toCommentUpdateRes(Comment comment);
 
         @Mapping(source = "user.nickname", target = "nickname")
         default String toUserNickname(User user) {
             return user.getNickname();
         }
 
-        List<CommentGetResUser> toCommentGetResUserList(List<CommentEntity> commentEntities);
+        List<CommentGetUserRes> toCommentGetResUserList(List<Comment> commentEntities);
 
         @Mapping(source = "user", target = "nickname")
-        CommentGetResUser toCommentGetResUser(CommentEntity commentEntity);
+        CommentGetUserRes toCommentGetResUser(Comment comment);
 
     }
 

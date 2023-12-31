@@ -5,8 +5,9 @@ import jakarta.validation.constraints.Size;
 public record CommentSaveReq(
     @Size(max = 500)
     String content,
-    @Size(max = 500)
-    String nickname
+    Long userid,
+    Long cardId
+
 ) {
 
 }
