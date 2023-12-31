@@ -71,15 +71,15 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentUpdateRes updateComment(CommentUpdateReq req, Long cardId, User user) {
-        Long boardId = findBoard(cardId);
+    public CommentUpdateRes updateComment(CommentUpdateReq req, Long commentId, User user) {
         Comment comment = commentRepository.findCommentByIdAndUserId(
-            req.commentId(),
+            commentId,
             user.getId());
-        if (validateUserAndComment(comment, boardId)) {
+        UserBoard userBoard = userBoardRepository.findByUser_Id(user.getId());
+        if (validateUserAndComment(comment, userBoard.getBoard().getId())) {
             return CommentServiceMapper.INSTANCE.toCommentUpdateRes(
                 commentRepository.save(Comment.builder()
-                    .id(req.commentId())
+                    .id(commentId)
                     .content(req.content())
                     .user(user)
                     .build())
@@ -100,5 +100,5 @@ public class CommentService {
         return CommentServiceMapper.INSTANCE.toCommentGetResUserList(
             commentRepository.findByUserNickname(req.nickname()));
     }
-    
+
 }

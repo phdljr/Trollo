@@ -10,4 +10,6 @@ public interface UserBoardRepository extends JpaRepository<UserBoard, UserBoardI
 
     UserBoard findByBoardIdAndUserId(Long boarId, Long userId);
 
+    UserBoard findByUser_Id(Long userId);
+
 }

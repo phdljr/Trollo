@@ -32,7 +32,6 @@ public interface CommentServiceMapper {
 
     List<CommentGetUserRes> toCommentGetResUserList(List<Comment> commentEntities);
 
-    @Mapping(source = "user", target = "nickname")
     CommentGetUserRes toCommentGetResUser(Comment comment);
 
 }
