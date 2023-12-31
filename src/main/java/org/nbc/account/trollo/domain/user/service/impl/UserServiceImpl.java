@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.nbc.account.trollo.domain.user.dto.request.LoginReq;
 import org.nbc.account.trollo.domain.user.dto.request.SignupReq;
+import org.nbc.account.trollo.domain.user.dto.response.MypageRes;
 import org.nbc.account.trollo.domain.user.entity.User;
 import org.nbc.account.trollo.domain.user.exception.UserDomainException;
 import org.nbc.account.trollo.domain.user.repository.UserRepository;
@@ -61,5 +62,10 @@ public class UserServiceImpl implements UserService {
 
         jwtUtil.addJwtToCookie(jwtUtil.createToken(loginReq.email()), response);
     }
+
+  @Override
+  public MypageRes mypage(User user) {
+        return new MypageRes(user.getEmail(),user.getNickname());
+  }
 
 }
