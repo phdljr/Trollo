@@ -8,6 +8,6 @@ public interface UserBoardRepository extends JpaRepository<UserBoard, UserBoardI
 
     boolean existsByBoardIdAndUserId(Long boardId, Long userId);
 
-    UserBoard findUserBoardByBoardIdAndUserId(Long boarId, Long userId);
+    UserBoard findByBoardIdAndUserId(Long boarId, Long userId);
 
 }

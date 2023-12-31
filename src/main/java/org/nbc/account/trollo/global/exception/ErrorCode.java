@@ -16,6 +16,7 @@ public enum ErrorCode {
     BAD_FORM(HttpStatus.BAD_REQUEST, "입력 형식이 맞지 않습니다."),
     INVALID_PASSWORD_CHECK(HttpStatus.BAD_REQUEST, "password check가 password와 일치하지 않습니다."),
     FORBIDDEN_ACCESS_CARD(HttpStatus.FORBIDDEN, "뭐지..."),
+    BAD_COMMENT_AND_BOARD_ID(HttpStatus.BAD_REQUEST, "댓글 또는 보드가 존재하지 않습니다"),
 
     // 404
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "사용자를 찾지 못하였습니다."),

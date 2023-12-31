@@ -1,16 +1,20 @@
-package org.nbc.account.trollo.domain.comment;
+package org.nbc.account.trollo.domain.comment.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.nbc.account.trollo.domain.comment.CommentService;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentDeleteReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentGetUserReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentSaveReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
 import org.nbc.account.trollo.domain.comment.dto.res.CommentGetUserRes;
 import org.nbc.account.trollo.global.dto.ApiResponse;
+import org.nbc.account.trollo.global.security.UserDetailsImpl;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,27 +22,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("api/v1/cards/comments")
+@RequestMapping("api/v1")
 @RestController
 public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping
-    public ApiResponse<Void> saveComment(@RequestBody CommentSaveReq req) {
-        commentService.saveComment(req);
+    @PostMapping("/{cardId}/comments")
+    public ApiResponse<Void> saveComment(
+        @RequestBody CommentSaveReq req,
+        @PathVariable Long cardId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        System.out.println("cardId = " + cardId);
+        commentService.saveComment(req, cardId, userDetails.getUser());
         return new ApiResponse<>(HttpStatus.CREATED.value(), "save_comment");
     }
 
-    @DeleteMapping
-    public ApiResponse<Void> deleteComment(@RequestBody CommentDeleteReq req) {
-        commentService.deleteComment(req);
+    @DeleteMapping("/{cardId}/comments")
+    public ApiResponse<Void> deleteComment(
+        @RequestBody CommentDeleteReq req,
+        @PathVariable Long cardId) {
+        commentService.deleteComment(req, cardId);
         return new ApiResponse<>(HttpStatus.OK.value(), "delete_comment");
     }
 
-    @PutMapping
-    public ApiResponse<Void> updateComment(@RequestBody CommentUpdateReq req) {
-        commentService.updateComment(req);
+    @PutMapping("/comments/{commentId}")
+    public ApiResponse<Void> updateComment(
+        @RequestBody CommentUpdateReq req,
+        @PathVariable Long commentId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        commentService.updateComment(req, commentId, userDetails.getUser());
         return new ApiResponse<>(HttpStatus.OK.value(), "update_comment");
     }
 

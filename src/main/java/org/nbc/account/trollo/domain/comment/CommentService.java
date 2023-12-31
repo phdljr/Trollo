@@ -17,6 +17,7 @@ import org.nbc.account.trollo.domain.comment.dto.res.CommentSaveRes;
 import org.nbc.account.trollo.domain.comment.dto.res.CommentUpdateRes;
 import org.nbc.account.trollo.domain.comment.entity.Comment;
 import org.nbc.account.trollo.domain.comment.exception.CommentDomainException;
+import org.nbc.account.trollo.domain.comment.mapper.CommentServiceMapper;
 import org.nbc.account.trollo.domain.comment.repository.CommentRepository;
 import org.nbc.account.trollo.domain.user.entity.User;
 import org.nbc.account.trollo.domain.user.repository.UserRepository;
@@ -30,18 +31,16 @@ import org.springframework.stereotype.Service;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final CardRepository cardRepository;
     private final UserBoardRepository userBoardRepository;
 
-
-    public CommentSaveRes saveComment(CommentSaveReq req) {
-        Long board = findBoard(req.cardId());
-        User user = userRepository.findUserById(req.userid());
-        Card card = cardRepository.findCardById(req.cardId());
-        UserBoard userBoard = findUserBoard(req.userid(), board);
+    public CommentSaveRes saveComment(CommentSaveReq req, Long cardId, User user) {
+        Card card = cardRepository.findCardById(cardId);
+        Long board = findBoard(cardId);
+        Long userId = user.getId();
+        UserBoard userBoard = findUserBoard(board, userId);
         if (userBoard == null) {
-            throw new CommentDomainException(ErrorCode.NOT_FOUND_BOARD);
+            throw new CommentDomainException(ErrorCode.NOT_FOUND_USER_BOARD);
         }
         return CommentServiceMapper.INSTANCE.toCommentSaveRes(
             commentRepository.save(Comment.builder()
@@ -52,76 +51,54 @@ public class CommentService {
     }
 
     public UserBoard findUserBoard(Long userid, Long boardid) {
-        return userBoardRepository.findUserBoardByBoardIdAndUserId(userid, boardid);
+        return userBoardRepository.findByBoardIdAndUserId(userid, boardid);
     }
 
-    public Long findBoard(Long cardid) {
-        Card card = cardRepository.findBySection_Board_Id(cardid);
-        Long bard = card.getSection().getBoard().getId();
-        return bard;
-    }
-
-    private User findNickname(String nickname) {
-        User userNickname = userRepository.findByNickname(nickname);
-        if (userNickname == null) {
-            throw new RuntimeException();
-        }
-        return userNickname;
+    public Long findBoard(Long cardId) {
+        Card card = cardRepository.findById(cardId).orElseThrow();
+        Long boardId = card.getSection().getBoard().getId();
+        return boardId;
     }
 
     @Transactional
-    public void deleteComment(CommentDeleteReq req) {
-        Comment comment = commentRepository.findByCommentId(req.commentId());
-        if (comment == null) {
+    public void deleteComment(CommentDeleteReq req, Long cardId) {
+        Long boardId = findBoard(cardId);
+        Comment comment = commentRepository.findCommentById(req.commentId());
+        if (comment == null && boardId == null) {
             throw new CommentDomainException(ErrorCode.NOT_FOUND_COMMENT);
         }
         commentRepository.delete(comment);
     }
 
     @Transactional
-    public CommentUpdateRes updateComment(CommentUpdateReq req) {
-        Comment comment = commentRepository.findByCommentIdAndUserNickname(
+    public CommentUpdateRes updateComment(CommentUpdateReq req, Long cardId, User user) {
+        Long boardId = findBoard(cardId);
+        Comment comment = commentRepository.findCommentByIdAndUserId(
             req.commentId(),
-            req.nickname());
-        if (comment == null) {
-            throw new CommentDomainException(ErrorCode.NOT_FOUND_COMMENT);
+            user.getId());
+        if (validateUserAndComment(comment, boardId)) {
+            return CommentServiceMapper.INSTANCE.toCommentUpdateRes(
+                commentRepository.save(Comment.builder()
+                    .id(req.commentId())
+                    .content(req.content())
+                    .user(user)
+                    .build())
+            );
         }
-        User nickname = findNickname(req.nickname());
-        return CommentServiceMapper.INSTANCE.toCommentUpdateRes(
-            commentRepository.save(Comment.builder()
-                .commentId(req.commentId())
-                .content(req.content())
-                .user(nickname)
-                .build())
-        );
+        return null;
+    }
+
+    public boolean validateUserAndComment(Comment comment, Long boardId) {
+        if (comment == null || boardId == null) {
+            throw new CommentDomainException((ErrorCode.BAD_COMMENT_AND_BOARD_ID));
+        } else {
+            return true;
+        }
     }
 
     public List<CommentGetUserRes> findUserComment(CommentGetUserReq req) {
         return CommentServiceMapper.INSTANCE.toCommentGetResUserList(
             commentRepository.findByUserNickname(req.nickname()));
     }
-
-    @Mapper
-    public interface CommentServiceMapper {
-
-        CommentService.CommentServiceMapper INSTANCE = Mappers.getMapper(
-            CommentService.CommentServiceMapper.class);
-
-        @Mapping(source = "user.nickname", target = "nickname")
-        CommentSaveRes toCommentSaveRes(Comment comment);
-
-        CommentUpdateRes toCommentUpdateRes(Comment comment);
-
-        @Mapping(source = "user.nickname", target = "nickname")
-        default String toUserNickname(User user) {
-            return user.getNickname();
-        }
-
-        List<CommentGetUserRes> toCommentGetResUserList(List<Comment> commentEntities);
-
-        @Mapping(source = "user", target = "nickname")
-        CommentGetUserRes toCommentGetResUser(Comment comment);
-
-    }
-
+    
 }
