@@ -24,16 +24,16 @@ public class InvitationServiceImpl implements InvitationService {
   @Override
   public void createInvitation(Long boardId, Long userId, User user) {
 
+    //check if the host is inviting oneself
+    User guest = getGuestById(userId, user);
+
+    Board board = boardRepository.findById(boardId).orElseThrow(() ->
+        new InvitationDomainException(ErrorCode.NOT_FOUND_BOARD));
+
     //check if userboard doesn't exists with the boardId and userId
-    if (ifUserBoardExists(boardId, userId)) {
+    if (userBoardRepository.existsByBoardIdAndUserId(boardId, userId)) {
       throw new InvitationDomainException(ErrorCode.ALREADY_EXIST_INVITATION);
     }
-
-    //check if the person is inviting oneself
-    User guest = getGuestById(userId, user);
-    Board board = getBoardById(boardId);
-
-    checkIfParticipants(user,board);
 
     UserBoard invitation = UserBoard.builder()
         .user(guest)
@@ -49,35 +49,12 @@ public class InvitationServiceImpl implements InvitationService {
     User guest = userRepository.findById(userId).orElseThrow(() ->
         new InvitationDomainException(ErrorCode.NOT_FOUND_USER));
 
-    //can't invite oneself
     if (guest.getId().equals(user.getId())) {
-      throw new InvitationDomainException(ErrorCode.SELF_CANNOT_BE_INVITED);
+      throw new InvitationDomainException(ErrorCode.HOST_CANNOT_BE_INVITED);
     }
 
     return guest;
 
-  }
-
-  private Board getBoardById(Long boardId) {
-    Board board = boardRepository.findById(boardId).orElseThrow(() ->
-        new InvitationDomainException(ErrorCode.NOT_FOUND_BOARD));
-
-    return board;
-  }
-
-  private boolean ifUserBoardExists(Long boardId, Long userId) {
-
-    return userBoardRepository.existsByBoardIdAndUserId(boardId, userId);
-
-  }
-
-  private void checkIfParticipants(User user , Board board){
-    UserBoard userBoard = userBoardRepository.findUserBoardByUserAndBoard(user,board).orElseThrow(()->
-        new InvitationDomainException(ErrorCode.ONLY_PARTICIPANTS_CAN_INVITE));
-    //if the user is not participating but just waiting in line
-    if(userBoard.getRole().equals(UserBoardRole.WAITING)){
-      throw new InvitationDomainException(ErrorCode.ONLY_PARTICIPANTS_CAN_INVITE);
-    }
   }
 
 }
