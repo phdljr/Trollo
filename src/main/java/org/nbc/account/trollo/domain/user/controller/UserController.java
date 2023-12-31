@@ -18,25 +18,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    // sign up
-    @PostMapping("/signup")
-    public ApiResponse<Void> signup(
-        @Valid @RequestBody SignupReq signupReq) {
+  // sign up
+  @PostMapping("/signup")
+  public ApiResponse<Void> signup(
+      @Valid @RequestBody SignupReq signupReq) {
 
-        userService.signup(signupReq);
-        // if succeeded
-        return new ApiResponse<>(HttpStatus.CREATED.value(), "completed signing up");
-    }
+    userService.signup(signupReq);
+    // if succeeded
+    return new ApiResponse<>(HttpStatus.CREATED.value(), "completed signing up");
+  }
 
-    // login
-    @PostMapping("/login")
-    public ApiResponse<Void> login(@RequestBody LoginReq loginReq,
-        HttpServletResponse response) {
+  // login
+  @PostMapping("/login")
+  public ApiResponse<Void> login(
+      @RequestBody LoginReq loginReq,
+      HttpServletResponse response) {
 
-        userService.login(loginReq, response);
-        return new ApiResponse<>(HttpStatus.OK.value(), "login succeeded");
-    }
+    userService.login(loginReq, response);
+    return new ApiResponse<>(HttpStatus.OK.value(), "login succeeded");
+  }
 
 }
