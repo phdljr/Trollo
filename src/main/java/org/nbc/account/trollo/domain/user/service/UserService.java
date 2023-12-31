@@ -8,10 +8,10 @@ import org.nbc.account.trollo.domain.user.entity.User;
 
 public interface UserService {
 
-    void signup(SignupReq signupReq);
+  void signup(SignupReq signupReq);
 
-    void login(LoginReq loginReq, HttpServletResponse response);
+  void login(LoginReq loginReq, HttpServletResponse response);
 
-    MypageRes mypage(User user);
+  MypageRes mypage(User user);
 
 }

@@ -18,54 +18,54 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtUtil jwtUtil;
 
-    public void signup(SignupReq signupReq) {
+  public void signup(SignupReq signupReq) {
 
-        String email = signupReq.email();
-        String nickname = signupReq.nickname();
-        String password = passwordEncoder.encode(signupReq.password());
-        String passwordCheck = signupReq.passwordCheck();
+    String email = signupReq.email();
+    String nickname = signupReq.nickname();
+    String password = passwordEncoder.encode(signupReq.password());
+    String passwordCheck = signupReq.passwordCheck();
 
-        // check username duplication
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new UserDomainException(ErrorCode.ALREADY_EXIST_EMAIL);
-        }
-
-        // check password
-        if (!passwordEncoder.matches(passwordCheck, password)) {
-            throw new UserDomainException(ErrorCode.INVALID_PASSWORD_CHECK);
-        }
-
-        //register user
-        User user = User.builder()
-            .email(email)
-            .password(password)
-            .nickname(nickname)
-            .build();
-
-        userRepository.save(user);
+    // check username duplication
+    if (userRepository.findByEmail(email).isPresent()) {
+      throw new UserDomainException(ErrorCode.ALREADY_EXIST_EMAIL);
     }
 
-    public void login(LoginReq loginReq, HttpServletResponse response) {
-        String email = loginReq.email();
-        String password = loginReq.password();
-        // find email
-        User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UserDomainException(ErrorCode.BAD_LOGIN));
-        // check password
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new UserDomainException(ErrorCode.BAD_LOGIN);
-        }
-
-        jwtUtil.addJwtToCookie(jwtUtil.createToken(loginReq.email()), response);
+    // check password
+    if (!passwordEncoder.matches(passwordCheck, password)) {
+      throw new UserDomainException(ErrorCode.INVALID_PASSWORD_CHECK);
     }
+
+    //register user
+    User user = User.builder()
+        .email(email)
+        .password(password)
+        .nickname(nickname)
+        .build();
+
+    userRepository.save(user);
+  }
+
+  public void login(LoginReq loginReq, HttpServletResponse response) {
+    String email = loginReq.email();
+    String password = loginReq.password();
+    // find email
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new UserDomainException(ErrorCode.BAD_LOGIN));
+    // check password
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+      throw new UserDomainException(ErrorCode.BAD_LOGIN);
+    }
+
+    jwtUtil.addJwtToCookie(jwtUtil.createToken(loginReq.email()), response);
+  }
 
   @Override
   public MypageRes mypage(User user) {
-        return new MypageRes(user.getEmail(),user.getNickname());
+    return new MypageRes(user.getEmail(), user.getNickname());
   }
 
 }
