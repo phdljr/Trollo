@@ -36,7 +36,7 @@ public class CheckListController {
         @PathVariable Long checkListId,
         @RequestBody CheckListRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkListService.updateCheckList(cardId,checkListId,requestDto,userDetails);
+        checkListService.updateCheckList(cardId, checkListId, requestDto, userDetails);
         return new ApiResponse<>(HttpStatus.OK.value(), "체크리스트 수정");
     }
 }

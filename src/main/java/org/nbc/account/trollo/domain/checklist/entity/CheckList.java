@@ -31,7 +31,7 @@ public class CheckList {
     private boolean checkSign;
 
     @ManyToOne
-    @JoinColumn(name = "card_id")
+    @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
     @Builder

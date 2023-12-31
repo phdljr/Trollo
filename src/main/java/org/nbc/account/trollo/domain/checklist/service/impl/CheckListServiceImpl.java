@@ -3,16 +3,15 @@ package org.nbc.account.trollo.domain.checklist.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.nbc.account.trollo.domain.card.entity.Card;
-import org.nbc.account.trollo.domain.card.exception.ForbiddenAccessCardException;
 import org.nbc.account.trollo.domain.card.exception.NotFoundCardException;
 import org.nbc.account.trollo.domain.card.repository.CardRepository;
+import org.nbc.account.trollo.domain.card.service.CardService;
 import org.nbc.account.trollo.domain.checklist.dto.request.CheckListRequestDto;
 import org.nbc.account.trollo.domain.checklist.entity.CheckList;
 import org.nbc.account.trollo.domain.checklist.exception.NotFoundCheckListException;
 import org.nbc.account.trollo.domain.checklist.repository.CheckListRepository;
 import org.nbc.account.trollo.domain.checklist.service.CheckListService;
 import org.nbc.account.trollo.domain.user.entity.User;
-import org.nbc.account.trollo.domain.userboard.repository.UserBoardRepository;
 import org.nbc.account.trollo.global.exception.ErrorCode;
 import org.nbc.account.trollo.global.security.UserDetailsImpl;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,7 @@ public class CheckListServiceImpl implements CheckListService {
 
     private final CardRepository cardRepository;
     private final CheckListRepository checkListRepository;
-    private final UserBoardRepository userBoardRepository;
+    private final CardService cardService;
 
     @Override
     public void createList(Long cardId, CheckListRequestDto requestDto,
@@ -37,9 +36,7 @@ public class CheckListServiceImpl implements CheckListService {
 
         Long boardId = card.getSection().getBoard().getId();
 
-        if (!userBoardRepository.existsByBoardIdAndUserId(boardId, loginUser.getId())) {
-            throw new ForbiddenAccessCardException(ErrorCode.FORBIDDEN_ACCESS_CARD);
-        }
+        cardService.checkUserInBoard(boardId, loginUser.getId());
 
         CheckList checkList = CheckList.builder()
             .card(card)
@@ -64,10 +61,8 @@ public class CheckListServiceImpl implements CheckListService {
             .orElseThrow(() -> new NotFoundCheckListException(ErrorCode.NOT_FOUND_CHECKLIST));
 
         Long boardId = card.getSection().getBoard().getId();
+        cardService.checkUserInBoard(boardId, loginUser.getId());
 
-        if (!userBoardRepository.existsByBoardIdAndUserId(boardId, loginUser.getId())) {
-            throw new ForbiddenAccessCardException(ErrorCode.FORBIDDEN_ACCESS_CARD);
-        }
-        checkList.update(description,checkSign);
+        checkList.update(description, checkSign);
     }
 }
