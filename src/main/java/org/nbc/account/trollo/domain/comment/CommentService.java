@@ -3,12 +3,8 @@ package org.nbc.account.trollo.domain.comment;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 import org.nbc.account.trollo.domain.card.entity.Card;
 import org.nbc.account.trollo.domain.card.repository.CardRepository;
-import org.nbc.account.trollo.domain.comment.dto.req.CommentDeleteReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentGetUserReq;
 import org.nbc.account.trollo.domain.comment.dto.res.CommentGetUserRes;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentSaveReq;
@@ -20,7 +16,6 @@ import org.nbc.account.trollo.domain.comment.exception.CommentDomainException;
 import org.nbc.account.trollo.domain.comment.mapper.CommentServiceMapper;
 import org.nbc.account.trollo.domain.comment.repository.CommentRepository;
 import org.nbc.account.trollo.domain.user.entity.User;
-import org.nbc.account.trollo.domain.user.repository.UserRepository;
 import org.nbc.account.trollo.domain.userboard.entity.UserBoard;
 import org.nbc.account.trollo.domain.userboard.repository.UserBoardRepository;
 import org.nbc.account.trollo.global.exception.ErrorCode;
@@ -61,13 +56,12 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(CommentDeleteReq req, Long cardId) {
-        Long boardId = findBoard(cardId);
-        Comment comment = commentRepository.findCommentById(req.commentId());
-        if (comment == null && boardId == null) {
-            throw new CommentDomainException(ErrorCode.NOT_FOUND_COMMENT);
+    public void deleteComment(Long commentId, User user) {
+        Comment comment = commentRepository.findCommentById(commentId);
+        UserBoard userBoard = userBoardRepository.findByUser_Id(user.getId());
+        if (validateUserAndComment(comment, userBoard.getBoard().getId())) {
+            commentRepository.delete(comment);
         }
-        commentRepository.delete(comment);
     }
 
     @Transactional

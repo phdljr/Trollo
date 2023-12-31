@@ -3,7 +3,6 @@ package org.nbc.account.trollo.domain.comment.controller;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.nbc.account.trollo.domain.comment.CommentService;
-import org.nbc.account.trollo.domain.comment.dto.req.CommentDeleteReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentGetUserReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentSaveReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
@@ -38,11 +37,11 @@ public class CommentController {
         return new ApiResponse<>(HttpStatus.CREATED.value(), "save_comment");
     }
 
-    @DeleteMapping("/{cardId}/comments")
+    @DeleteMapping("/comments/{commentId}")
     public ApiResponse<Void> deleteComment(
-        @RequestBody CommentDeleteReq req,
-        @PathVariable Long cardId) {
-        commentService.deleteComment(req, cardId);
+        @PathVariable Long commentId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        commentService.deleteComment(commentId, userDetails.getUser());
         return new ApiResponse<>(HttpStatus.OK.value(), "delete_comment");
     }
 
