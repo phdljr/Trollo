@@ -12,4 +12,9 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     List<Card> findAllBySectionId(Long sectionId);
 
     Optional<Card> findBySectionIdAndNextCardIsNull(Long sectionId);
+
+    Card findBySection_Board_Id(Long cardId);
+
+    Card findCardById(Long cardId);
+
 }
