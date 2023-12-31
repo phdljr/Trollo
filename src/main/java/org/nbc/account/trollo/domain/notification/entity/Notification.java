@@ -29,10 +29,10 @@ public class Notification {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private NotificationEnum notificationEnum;
+    private NotificationEnum fieldName;
 
     @Column
-    private String message;
+    private String fieldContent;
 
     @Column
     private LocalDateTime createdAt;
@@ -42,10 +42,10 @@ public class Notification {
     private Card card;
 
     public Notification(CardEvent event) {
-        this.notificationEnum = event.getNotificationEnum();
-        this.card = event.getCard();
+        this.fieldName = event.notificationEnum();
+        this.card = event.card();
         this.createdAt = LocalDateTime.now();
-        this.message =
-            event.getCard().getId() + "번 카드" + event.getNotificationEnum().getWord() + "되었습니다.";
+        this.fieldContent =
+            event.card().getId() + "번 카드" + event.notificationEnum().getWord() + "되었습니다.";
     }
 }

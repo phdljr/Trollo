@@ -1,5 +1,10 @@
 package org.nbc.account.trollo.domain.notification.entity;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum NotificationEnum {
     CREATED("가 생성"),
     UPDATED("가 수정"),
@@ -9,12 +14,4 @@ public enum NotificationEnum {
 
     private final String word;
 
-
-    NotificationEnum(String word) {
-        this.word = word;
-    }
-
-    String getWord() {
-        return word;
-    }
 }
