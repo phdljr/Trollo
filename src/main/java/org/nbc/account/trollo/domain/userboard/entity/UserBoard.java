@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.nbc.account.trollo.domain.board.entity.Board;
@@ -33,4 +34,11 @@ public class UserBoard {
 
     @Enumerated(EnumType.STRING)
     private UserBoardRole role;
+
+    @Builder
+    public UserBoard(User user, Board board, UserBoardRole role) {
+        this.user = user;
+        this.board = board;
+        this.role = role;
+    }
 }
