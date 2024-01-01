@@ -25,11 +25,6 @@ public interface CommentServiceMapper {
 
     CommentUpdateRes toCommentUpdateRes(Comment comment);
 
-    @Mapping(source = "user.nickname", target = "nickname")
-    default String toUserNickname(User user) {
-        return user.getNickname();
-    }
-
     List<CommentGetUserRes> toCommentGetResUserList(List<Comment> commentEntities);
 
     CommentGetUserRes toCommentGetResUser(Comment comment);
