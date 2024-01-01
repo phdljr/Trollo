@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentGetUserReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentSaveReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
+import org.nbc.account.trollo.domain.comment.dto.res.CommentGetCardRes;
 import org.nbc.account.trollo.domain.comment.dto.res.CommentGetUserRes;
 import org.nbc.account.trollo.domain.comment.service.CommentService;
 import org.nbc.account.trollo.global.dto.ApiResponse;
@@ -54,10 +55,17 @@ public class CommentController {
     }
 
     @GetMapping
-    public ApiResponse<List<CommentGetUserRes>> getComments(@RequestBody CommentGetUserReq req) {
+    public ApiResponse<List<CommentGetUserRes>> getComments(
+        @RequestBody CommentGetUserReq req) {
         return new ApiResponse<>(HttpStatus.OK.value(),
             "User_Get_Comment",
             commentService.findUserComment(req));
+    }
+
+    @GetMapping("/{cardId}/comments")
+    public ApiResponse<List<CommentGetCardRes>> getCardComment(@PathVariable Long cardId) {
+        return new ApiResponse<>(HttpStatus.OK.value(), "Card_Get_Comment",
+            commentService.findCardComment(cardId));
     }
 
 }

@@ -1,6 +1,7 @@
 package org.nbc.account.trollo.domain.comment.dto.res;
 
-public record CommentGetResUser(
+public record CommentGetCardRes(
+    Long cardId,
     String nickname,
     String content
 ) {

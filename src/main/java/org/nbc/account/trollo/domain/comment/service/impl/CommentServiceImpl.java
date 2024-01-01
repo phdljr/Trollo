@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.nbc.account.trollo.domain.card.entity.Card;
 import org.nbc.account.trollo.domain.card.repository.CardRepository;
+import org.nbc.account.trollo.domain.comment.dto.res.CommentGetCardRes;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentGetUserReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentSaveReq;
 import org.nbc.account.trollo.domain.comment.dto.req.CommentUpdateReq;
@@ -96,5 +97,10 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentGetUserRes> findUserComment(CommentGetUserReq req) {
         return CommentServiceMapper.INSTANCE.toCommentGetResUserList(
             commentRepository.findByUserNickname(req.nickname()));
+    }
+    public List<CommentGetCardRes> findCardComment(Long cardId){
+        return CommentServiceMapper.INSTANCE.toCommentGetCardList(
+            commentRepository.findByCardId(cardId)
+        );
     }
 }
