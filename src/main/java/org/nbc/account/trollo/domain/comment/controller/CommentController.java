@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("api/v1")
+@RequestMapping("/api/v1")
 @RestController
 public class CommentController {
 
@@ -32,7 +32,6 @@ public class CommentController {
         @RequestBody CommentSaveReq req,
         @PathVariable Long cardId,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        System.out.println("cardId = " + cardId);
         commentService.saveComment(req, cardId, userDetails.getUser());
         return new ApiResponse<>(HttpStatus.CREATED.value(), "save_comment");
     }

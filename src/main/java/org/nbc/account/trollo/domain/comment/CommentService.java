@@ -31,9 +31,9 @@ public class CommentService {
 
     public CommentSaveRes saveComment(CommentSaveReq req, Long cardId, User user) {
         Card card = cardRepository.findCardById(cardId);
-        Long board = findBoard(cardId);
+        Long boardId = findBoardId(cardId);
         Long userId = user.getId();
-        UserBoard userBoard = findUserBoard(board, userId);
+        UserBoard userBoard = findUserBoard(boardId, userId);
         if (userBoard == null) {
             throw new CommentDomainException(ErrorCode.NOT_FOUND_USER_BOARD);
         }
@@ -45,12 +45,14 @@ public class CommentService {
                 .build()));
     }
 
-    public UserBoard findUserBoard(Long userid, Long boardid) {
-        return userBoardRepository.findByBoardIdAndUserId(userid, boardid);
+    private UserBoard findUserBoard(Long userid, Long boardid) {
+        return userBoardRepository.findByUserIdAndBoardId(userid, boardid);
     }
 
-    public Long findBoard(Long cardId) {
-        Card card = cardRepository.findById(cardId).orElseThrow();
+    private Long findBoardId(Long cardId) {
+        Card card = cardRepository.findById(cardId).orElseThrow(
+            () -> new CommentDomainException(ErrorCode.NOT_FOUND_CARD)
+        );
         Long boardId = card.getSection().getBoard().getId();
         return boardId;
     }
@@ -94,5 +96,4 @@ public class CommentService {
         return CommentServiceMapper.INSTANCE.toCommentGetResUserList(
             commentRepository.findByUserNickname(req.nickname()));
     }
-
 }

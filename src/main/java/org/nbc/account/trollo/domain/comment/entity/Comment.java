@@ -16,11 +16,11 @@ import org.nbc.account.trollo.domain.card.entity.Card;
 import org.nbc.account.trollo.domain.user.entity.User;
 import org.nbc.account.trollo.global.entity.BaseEntity;
 
+@Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
-@Builder
 @Table(name = "TB_COMMENT")
 public class Comment extends BaseEntity {
 
