@@ -8,11 +8,9 @@ public class S3Validator {
         if (!isExistFile(amazonS3, bucket, fileName)) {
             throw new IllegalArgumentException("Not Found File");
         }
-
     }
 
     private static boolean isExistFile(AmazonS3 amazonS3, String bucket, String filename) {
         return amazonS3.doesObjectExist(bucket, filename);
     }
-
 }

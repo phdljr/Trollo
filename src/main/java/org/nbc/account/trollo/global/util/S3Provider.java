@@ -49,9 +49,7 @@ public class S3Provider {
         originalFilename = folderName + SEPARATOR + UUID.randomUUID() + originalFilename.substring(
             originalFilename.lastIndexOf("."));
         createFolder(folderName);
-
         ObjectMetadata metadata = setObjectMetadata(multipartFile);
-
         amazonS3.putObject(bucket, originalFilename, multipartFile.getInputStream(), metadata);
         return amazonS3.getUrl(bucket, originalFilename).toString();
     }
@@ -71,5 +69,4 @@ public class S3Provider {
         S3Validator.validate(amazonS3, bucket, originalFilename);
         amazonS3.deleteObject(bucket, originalFilename);
     }
-
 }
