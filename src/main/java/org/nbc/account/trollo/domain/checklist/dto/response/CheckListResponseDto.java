@@ -5,8 +5,7 @@ import lombok.Builder;
 @Builder
 public record CheckListResponseDto(
     String description,
-    boolean checkSign,
-    double rate
+    boolean checkSign
 ) {
 
 }

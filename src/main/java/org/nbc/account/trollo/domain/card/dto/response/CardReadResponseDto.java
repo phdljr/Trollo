@@ -12,7 +12,8 @@ public record CardReadResponseDto(
     String content,
     String color,
     LocalDateTime deadline,
-    List<CheckListResponseDto> checkListResponseDtoList
+    List<CheckListResponseDto> checkListResponseDtoList,
+    double rate
 ) {
 
 }
