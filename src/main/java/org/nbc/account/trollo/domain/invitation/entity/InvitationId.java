@@ -17,12 +17,12 @@ import org.nbc.account.trollo.domain.user.entity.User;
 @Embeddable
 public class InvitationId implements Serializable {
 
-  @ManyToOne
-  @JoinColumn(name = "receiver_id", nullable = false)
-  private User receiver;
+    @ManyToOne
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private User receiver;
 
-  @ManyToOne
-  @JoinColumn(name = "board_id", nullable = false)
-  private Board board;
+    @ManyToOne
+    @JoinColumn(name = "board_id", nullable = false)
+    private Board board;
 
 }

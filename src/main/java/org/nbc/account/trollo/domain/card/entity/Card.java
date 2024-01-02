@@ -112,4 +112,18 @@ public class Card {
                 break;
         }
     }
+
+    public void changeSection(final Section section) {
+        if (prevCard != null) {
+            prevCard.setNextCard(nextCard);
+        }
+        if (nextCard != null) {
+            nextCard.setPrevCard(prevCard);
+        }
+
+        this.setPrevCard(null);
+        this.setNextCard(null);
+
+        this.section = section;
+    }
 }

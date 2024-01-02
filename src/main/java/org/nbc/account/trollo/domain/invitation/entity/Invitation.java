@@ -16,32 +16,21 @@ import org.nbc.account.trollo.domain.user.entity.User;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "TB_INVITATION")
-//@IdClass(InvitationId.class)
 public class Invitation {
 
-//  @Id
-//  @ManyToOne
-//  @JoinColumn(name = "user_id", nullable = false)
-//  private User reciever;
-//
-//  @Id
-//  @ManyToOne
-//  @JoinColumn(name = "board_id", nullable = false)
-//  private Board board;
+    @EmbeddedId
+    private InvitationId id;
 
-  @EmbeddedId
-  private InvitationId id;
+    @ManyToOne
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User sender;
 
-  @ManyToOne
-  @JoinColumn(name = "sender_id", nullable = false)
-  private User sender;
-
-  @Builder
-  public Invitation(User receiver, User sender, Board board) {
-    this.id = new InvitationId();
-    id.setReceiver(receiver);
-    id.setBoard(board);
-    this.sender = sender;
-  }
+    @Builder
+    public Invitation(User receiver, User sender, Board board) {
+        this.id = new InvitationId();
+        id.setReceiver(receiver);
+        id.setBoard(board);
+        this.sender = sender;
+    }
 
 }

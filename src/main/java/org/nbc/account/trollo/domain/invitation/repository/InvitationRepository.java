@@ -10,12 +10,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InvitationRepository extends JpaRepository<Invitation, InvitationId> {
 
-  Optional<Invitation> findInvitationByIdReceiverAndIdBoard(User receiver, Board board);
+    Optional<Invitation> findInvitationByIdReceiverAndIdBoard(User receiver, Board board);
 
-  Optional<List<Invitation>> findAllByIdReceiver(User receiver);
+    Optional<List<Invitation>> findAllByIdReceiver(User receiver);
 
-  boolean existsByIdReceiverAndIdBoard(User receiver, Board board);
+    boolean existsByIdReceiverAndIdBoard(User receiver, Board board);
 
-  Optional<List<Invitation>> findAllBySender(User sender);
+    Optional<List<Invitation>> findAllBySender(User sender);
 
 }

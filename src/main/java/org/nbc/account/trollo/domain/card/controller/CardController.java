@@ -28,13 +28,13 @@ public class CardController {
 
     private final CardService cardService;
 
-    @PostMapping("/boards/{boardId}/columns/{columnId}/cards")
+    @PostMapping("/boards/{boardId}/sections/{sectionId}/cards")
     public ApiResponse<Void> createCard(
         @PathVariable Long boardId,
-        @PathVariable Long columnId,
+        @PathVariable Long sectionId,
         @RequestBody CardCreateRequestDto cardCreateRequestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        cardService.createCard(cardCreateRequestDto, boardId, columnId, userDetails.getUser());
+        cardService.createCard(cardCreateRequestDto, boardId, sectionId, userDetails.getUser());
         return new ApiResponse<>(HttpStatus.CREATED.value(), "카드 생성");
     }
 
@@ -82,12 +82,21 @@ public class CardController {
     }
 
     @PutMapping("/cards/{fromCardId}/to/{toCardId}/{direction}")
-    public ApiResponse<Void> updateCardSequence(
+    public ApiResponse<Void> changeCardSequence(
         @PathVariable Long fromCardId,
         @PathVariable Long toCardId,
         @PathVariable CardSequenceDirection direction,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        cardService.updateCardSequence(fromCardId, toCardId, direction, userDetails.getUser());
+        cardService.changeCardSequence(fromCardId, toCardId, direction, userDetails.getUser());
+        return new ApiResponse<>(HttpStatus.OK.value(), "카드 위치 변경");
+    }
+
+    @PutMapping("/cards/{cardId}/to/sections/{sectionId}")
+    public ApiResponse<Void> moveCardToSection(
+        @PathVariable Long cardId,
+        @PathVariable Long sectionId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        cardService.moveCardToSection(cardId, sectionId, userDetails.getUser());
         return new ApiResponse<>(HttpStatus.OK.value(), "카드 위치 변경");
     }
 

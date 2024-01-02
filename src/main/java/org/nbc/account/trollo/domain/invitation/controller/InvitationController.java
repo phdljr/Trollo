@@ -20,44 +20,44 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 public class InvitationController {
 
-  private final InvitationService invitationService;
+    private final InvitationService invitationService;
 
-  // invite user to a board
-  @PostMapping("/boards/{boardId}/invite/{userId}")
-  public ApiResponse<Void> invite(
-      @PathVariable(name = "boardId") Long boardId,
-      @PathVariable(name = "userId") Long userId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    // invite user to a board
+    @PostMapping("/boards/{boardId}/invite/{userId}")
+    public ApiResponse<Void> invite(
+        @PathVariable(name = "boardId") Long boardId,
+        @PathVariable(name = "userId") Long userId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    invitationService.createInvitation(boardId, userId, userDetails.getUser());
-    return new ApiResponse<>(HttpStatus.CREATED.value(), "successfully invited user");
-  }
+        invitationService.createInvitation(boardId, userId, userDetails.getUser());
+        return new ApiResponse<>(HttpStatus.CREATED.value(), "successfully invited user");
+    }
 
-  // view invitations I got
-  @GetMapping("/invitations")
-  public ApiResponse<InvitationsRes> getInvitations(
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    // view invitations I got
+    @GetMapping("/invitations")
+    public ApiResponse<InvitationsRes> getInvitations(
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    return new ApiResponse<>(HttpStatus.OK.value(), "내가 받은/보낸 초대 조회",
-        invitationService.getInvitations(userDetails.getUser()));
-  }
+        return new ApiResponse<>(HttpStatus.OK.value(), "내가 받은/보낸 초대 조회",
+            invitationService.getInvitations(userDetails.getUser()));
+    }
 
-  @PutMapping("/boards/{boardId}/approve")
-  public ApiResponse<UserBoardRes> approveInvitation(
-      @AuthenticationPrincipal UserDetailsImpl userDetails,
-      @PathVariable(name = "boardId") Long boardId) {
+    @PutMapping("/boards/{boardId}/approve")
+    public ApiResponse<UserBoardRes> approveInvitation(
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @PathVariable(name = "boardId") Long boardId) {
 
-    return new ApiResponse<>(HttpStatus.OK.value(), "초대 수락 성공",
-        invitationService.approveInvitation(boardId, userDetails.getUser()));
-  }
+        return new ApiResponse<>(HttpStatus.OK.value(), "초대 수락 성공",
+            invitationService.approveInvitation(boardId, userDetails.getUser()));
+    }
 
-  @PutMapping("/boards/{boardId}/reject")
-  public ApiResponse<Void> rejectInvitation(
-      @AuthenticationPrincipal UserDetailsImpl userDetails,
-      @PathVariable(name = "boardId") Long boardId) {
+    @PutMapping("/boards/{boardId}/reject")
+    public ApiResponse<Void> rejectInvitation(
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @PathVariable(name = "boardId") Long boardId) {
 
-    invitationService.rejectInvitation(boardId, userDetails.getUser());
-    return new ApiResponse<>(HttpStatus.OK.value(), "초대 거절 성공");
-  }
+        invitationService.rejectInvitation(boardId, userDetails.getUser());
+        return new ApiResponse<>(HttpStatus.OK.value(), "초대 거절 성공");
+    }
 
 }

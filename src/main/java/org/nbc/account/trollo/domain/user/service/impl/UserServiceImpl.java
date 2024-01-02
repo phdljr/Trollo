@@ -1,9 +1,12 @@
 package org.nbc.account.trollo.domain.user.service.impl;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.nbc.account.trollo.domain.user.dto.request.LoginReq;
 import org.nbc.account.trollo.domain.user.dto.request.SignupReq;
+import org.nbc.account.trollo.domain.user.dto.request.UserInfoUpdateReq;
+import org.nbc.account.trollo.domain.user.dto.response.MyPageRes;
 import org.nbc.account.trollo.domain.user.entity.User;
 import org.nbc.account.trollo.domain.user.exception.UserDomainException;
 import org.nbc.account.trollo.domain.user.repository.UserRepository;
@@ -12,6 +15,7 @@ import org.nbc.account.trollo.global.exception.ErrorCode;
 import org.nbc.account.trollo.global.jwt.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 @RequiredArgsConstructor
 @Service
@@ -60,6 +64,26 @@ public class UserServiceImpl implements UserService {
         }
 
         jwtUtil.addJwtToCookie(jwtUtil.createToken(loginReq.email()), response);
+    }
+
+    @Override
+    public MyPageRes mypage(User user) {
+        return new MyPageRes(user.getEmail(),user.getNickname());
+    }
+
+    @Override
+    @Transactional
+    public void updateInfo(UserInfoUpdateReq updateReq ,User user) {
+
+        String nickname = updateReq.nickname();
+        String password = updateReq.password();
+
+        //if password is equal to the saved password, proceed
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new UserDomainException(ErrorCode.NOT_MATCH_PASSWORD);
+        }
+
+        user.updateNickname(nickname);
     }
 
 }

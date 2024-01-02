@@ -59,7 +59,9 @@ public class WebSecurityConfig {
             authorizeHttpRequests
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
                 .permitAll() // allow access to resources
-                .requestMatchers("/api/v1/users/**").permitAll() // allow all requests
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                .requestMatchers("/api/v1/users/signup").permitAll() // allow requests to signup
+                .requestMatchers("/api/v1/users/login").permitAll() // allow requests to login
                 .anyRequest().authenticated() // other requests should go through authorization
         );
 

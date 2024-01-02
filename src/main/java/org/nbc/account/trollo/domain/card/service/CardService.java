@@ -10,7 +10,7 @@ import org.nbc.account.trollo.domain.user.entity.User;
 
 public interface CardService {
 
-    void createCard(final CardCreateRequestDto cardCreateRequestDto, Long boardId, Long columnId,
+    void createCard(final CardCreateRequestDto cardCreateRequestDto, Long boardId, Long sectionId,
         User user);
 
     CardReadResponseDto getCard(Long cardId, User user);
@@ -23,6 +23,8 @@ public interface CardService {
 
     void deleteCard(Long cardId, User user);
 
-    void updateCardSequence(Long fromCardId, Long toCardId, CardSequenceDirection direction,
+    void changeCardSequence(Long fromCardId, Long toCardId, CardSequenceDirection direction,
         User user);
+
+    void moveCardToSection(Long cardId, Long sectionId, User user);
 }

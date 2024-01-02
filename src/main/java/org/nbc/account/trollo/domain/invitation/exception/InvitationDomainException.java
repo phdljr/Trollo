@@ -5,8 +5,8 @@ import org.nbc.account.trollo.global.exception.ErrorCode;
 
 public class InvitationDomainException extends CustomException {
 
-  public InvitationDomainException(ErrorCode errorCode) {
-    super(errorCode);
-  }
+    public InvitationDomainException(ErrorCode errorCode) {
+        super(errorCode);
+    }
 
 }

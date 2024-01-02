@@ -16,10 +16,13 @@ import org.nbc.account.trollo.domain.card.entity.Card;
 import org.nbc.account.trollo.domain.card.entity.Card.CardBuilder;
 import org.nbc.account.trollo.domain.card.exception.ForbiddenChangeCardSequenceException;
 import org.nbc.account.trollo.domain.card.exception.IllegalChangeSameCardException;
+import org.nbc.account.trollo.domain.card.exception.IllegalMoveToSectionException;
 import org.nbc.account.trollo.domain.card.exception.NotFoundCardException;
 import org.nbc.account.trollo.domain.card.mapper.CardMapper;
 import org.nbc.account.trollo.domain.card.repository.CardRepository;
 import org.nbc.account.trollo.domain.card.service.CardService;
+import org.nbc.account.trollo.domain.notification.entity.NotificationType;
+import org.nbc.account.trollo.domain.notification.event.CardEvent;
 import org.nbc.account.trollo.domain.section.entity.Section;
 import org.nbc.account.trollo.domain.section.exception.NotFoundSectionException;
 import org.nbc.account.trollo.domain.section.exception.NotFoundSectionInBoardException;
@@ -31,6 +34,7 @@ import org.nbc.account.trollo.domain.userboard.exception.ForbiddenAccessBoardExc
 import org.nbc.account.trollo.domain.userboard.exception.NotFoundUserBoardException;
 import org.nbc.account.trollo.domain.userboard.repository.UserBoardRepository;
 import org.nbc.account.trollo.global.exception.ErrorCode;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +45,7 @@ public class CardServiceImpl implements CardService {
     private final CardRepository cardRepository;
     private final BoardRepository boardRepository;
     private final UserBoardRepository userBoardRepository;
+    private final ApplicationEventPublisher publisher;
     private final SectionRepository sectionRepository;
 
     @Override
@@ -82,6 +87,7 @@ public class CardServiceImpl implements CardService {
         createdCard = cardRepository.save(createdCard);
 
         lastCard.setNextCard(createdCard);
+        publisher.publishEvent(new CardEvent(board, user, NotificationType.CREATED));
     }
 
     @Override
@@ -135,6 +141,9 @@ public class CardServiceImpl implements CardService {
             cardUpdateRequestDto.color(),
             cardUpdateRequestDto.deadline()
         );
+
+        Board board = card.getSection().getBoard();
+        publisher.publishEvent(new CardEvent(board, user, NotificationType.UPDATED));
     }
 
     @Override
@@ -154,11 +163,14 @@ public class CardServiceImpl implements CardService {
         card.getNextCard().setPrevCard(prevCard);
 
         cardRepository.delete(card);
+
+        Board board = card.getSection().getBoard();
+        publisher.publishEvent(new CardEvent(board, user, NotificationType.DELETED));
     }
 
     @Override
     @Transactional
-    public void updateCardSequence(final Long fromCardId, final Long toCardId,
+    public void changeCardSequence(final Long fromCardId, final Long toCardId,
         final CardSequenceDirection direction,
         final User user) {
         Card fromCard = cardRepository.findById(fromCardId)
@@ -181,6 +193,32 @@ public class CardServiceImpl implements CardService {
         }
 
         fromCard.changeSequence(toCard, direction);
+    }
+
+    @Override
+    @Transactional
+    public void moveCardToSection(final Long cardId, final Long sectionId, final User user) {
+        Card card = cardRepository.findById(cardId)
+            .orElseThrow(() -> new NotFoundCardException(ErrorCode.NOT_FOUND_CARD));
+
+        Long boardIdByCard = card.getSection().getBoard().getId();
+        checkUserInBoard(boardIdByCard, user.getId());
+
+        Section section = sectionRepository.findById(sectionId)
+            .orElseThrow(() -> new NotFoundSectionException(ErrorCode.NOT_FOUND_SECTION));
+
+        Long boardIdBySection = section.getBoard().getId();
+        checkUserInBoard(boardIdBySection, user.getId());
+
+        if(!Objects.equals(boardIdByCard, boardIdBySection)){
+            throw new ForbiddenChangeCardSequenceException(ErrorCode.FORBIDDEN_CHANGE_CARD);
+        }
+
+        if(cardRepository.existsBySectionId(sectionId)){
+            throw new IllegalMoveToSectionException(ErrorCode.ILLEGAL_MOVE_TO_SECTION);
+        }
+
+        card.changeSection(section);
     }
 
     private void checkUserInBoard(Long boardId, Long userId) {
