@@ -16,11 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class S3Provider {
 
     private final AmazonS3 amazonS3;
-
+    private final String SEPARATOR = "/";
     @Value("${cloud.aws.s3.bucket.name}")
     public String bucket;
-
-    private final String SEPARATOR = "/";
 
     // S3에 파일을 업로드 하기 위해서는 ObjectMetaData 형태로 반환
     private static ObjectMetadata setObjectMetadata(MultipartFile multipartFile) {
@@ -58,5 +56,20 @@ public class S3Provider {
         return amazonS3.getUrl(bucket, originalFilename).toString();
     }
 
+    public String updateImage(String originalFilename, MultipartFile multipartFile)
+        throws IOException {
+        S3Validator.validate(amazonS3, bucket, originalFilename);
+        ObjectMetadata metadata = setObjectMetadata(multipartFile);
+        amazonS3.putObject(bucket, originalFilename, multipartFile.getInputStream(), metadata);
+        return amazonS3.getUrl(bucket, originalFilename).toString();
+    }
+
+    public void deleteImage(String originalFilename) {
+        if (originalFilename == null) {
+            return;
+        }
+        S3Validator.validate(amazonS3, bucket, originalFilename);
+        amazonS3.deleteObject(bucket, originalFilename);
+    }
 
 }
